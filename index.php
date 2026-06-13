@@ -47,8 +47,8 @@
           <li><a class="nav-link scrollto o" href="picture.php">Galeri Gambar PIMS</a></li>
           <li><a class="nav-link scrollto" href="infaq.php">Sumbangan</a></li>
           <li><a class="nav-link scrollto" href="#contact">Hubungi Kami</a></li>
-          <li><a class="getstarted scrollto" a href="signup.php" id="signup-btn">Daftar Masuk</a></li>
-          <li><a class="getstarted scrollto" a href="login.php" id="signup-btn">Log Masuk</a></li>
+          <li><a class="getstarted scrollto" href="signup.php" id="signup-btn">Daftar Masuk</a></li>
+          <li><a class="getstarted scrollto" href="login.php" id="signup-btn">Log Masuk</a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
