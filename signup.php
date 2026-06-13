@@ -1,9 +1,20 @@
 <?php
-// Database connection
-$host = "localhost";
-$username = "root";
-$password = "";
-$database = "pims_pbu";
+$host = "lesbot-db-server.mysql.database.azure.com";
+$db   = "pims_db";
+$user = "sufiana_admin";
+$pass = "YOUR_DATABASE_PASSWORD";
+
+$options = [
+    PDO::MYSQL_ATTR_SSL_CA => true, // Required for Azure
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+];
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass, $options);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+// ... rest of code
 
 // Create a new PDO instance
 $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);

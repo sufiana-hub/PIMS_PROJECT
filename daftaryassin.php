@@ -1,66 +1,56 @@
 <?php
-// Database connection
-$host = "localhost";
-$username = "root";
-$password = "";
-$database = "pims_pbu";
+session_start(); // Start session at the very top
+date_default_timezone_set("Asia/Kuala_Lumpur");
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $database);
+// Database connection details
+$host = "lesbot-db-server.mysql.database.azure.com";
+$username = "sufiana_admin";
+$password = "YOUR_DATABASE_PASSWORD"; // Ensure this is your actual password
+$db_name = "pims_db"; 
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Function to sanitize user inputs and prevent SQL injection
-function sanitizeInput($conn, $input) {
-    $input = trim($input);
-    $input = mysqli_real_escape_string($conn, $input);
-    return $input;
-}
-
-// Check if the login form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the email and password entered by the user
-    $email = sanitizeInput($conn, $_POST['email']);
-    $password = sanitizeInput($conn, $_POST['password']);
-
-    // Query to check if the email and password exist in the database
-    $query = "SELECT * FROM signup WHERE email = '$email' AND password = '$password'";
-    $result = mysqli_query($conn, $query);
-
-    if (mysqli_num_rows($result) == 1) {
-        // Successful login
-        $row = mysqli_fetch_assoc($result);
-        $fullname = $row['fullname'];
-        $no_matric = $row['nomatric'];
-        $no_ic = $row['noic'];
-
-        // Start PHP session and store user data
-        session_start();
-        $_SESSION['fullname'] = $fullname;
-        $_SESSION['no_matric'] = $no_matric;
-        $_SESSION['no_ic'] = $no_ic;
-        $_SESSION['email'] = $email;
-
-        // Redirect to activity.php page
-        header("Location: activity.php");
-        exit();
-    } else {
-        // Invalid email or password
-        $error = "Invalid email or password.";
-    }
-}
-
-// Check if the user is logged in and retrieve stored data from session
-session_start();
+// Initialize variables for HTML to prevent "Undefined variable" errors
 $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : "";
 $no_matric = isset($_SESSION['no_matric']) ? $_SESSION['no_matric'] : "";
 $no_ic = isset($_SESSION['no_ic']) ? $_SESSION['no_ic'] : "";
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : "";
-?>
+$error = "";
 
+// 1. Create the SECURE connection for Azure
+$conn = mysqli_init();
+mysqli_ssl_set($conn, NULL, NULL, NULL, NULL, NULL);
+$success = mysqli_real_connect($conn, $host, $username, $password, $db_name, 3306, MYSQLI_CLIENT_SSL);
+
+if (!$success) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Function to sanitize user inputs
+function sanitizeInput($conn, $input) {
+    return mysqli_real_escape_string($conn, trim($input));
+}
+
+// Check if the login form is submitted (if this page handles login logic)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
+    $login_email = sanitizeInput($conn, $_POST['email']);
+    $login_password = sanitizeInput($conn, $_POST['password']);
+
+    $query = "SELECT * FROM signup WHERE email = '$login_email' AND password = '$login_password'";
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['fullname'] = $row['fullname'];
+        $_SESSION['no_matric'] = $row['nomatric'];
+        $_SESSION['no_ic'] = $row['noic'];
+        $_SESSION['email'] = $login_email;
+
+        header("Location: activity.php");
+        exit();
+    } else {
+        $error = "E-mel atau kata laluan tidak sah.";
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -69,16 +59,14 @@ $email = isset($_SESSION['email']) ? $_SESSION['email'] : "";
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>PIMS</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
+  <title>PIMS - Daftar Yassin</title>
+  
   <!-- Favicons -->
-  <link href="assets\img\pimslogo.png" rel="icon">
-  <link href="assets\img\pimslogo.png" rel="apple-touch-icon">
+  <link href="assets/img/pimslogo.png" rel="icon">
+  <link href="assets/img/pimslogo.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -94,157 +82,88 @@ $email = isset($_SESSION['email']) ? $_SESSION['email'] : "";
 </head>
 
 <body>
-      <main id="main">
-        <!-- ======= Services Section ======= -->
-        <section id="services" class="services">
-            <div class="container" data-aos="fade-up">
-                <div class="section-title">
-                    <h2>MAKLUMAT PELAJAR</h2>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-9 col-md-9">
-<div class="form-group row">
-    <label for="name" class="col-sm-3 col-form-label"><b>NAMA :</b></label>
-    <div class="col-sm-9">
-        <input type="text" class="form-control" id="name" name="name" value="<?php echo $fullname; ?>" readonly>
-    </div>
-</div>
-
-<div class="form-group row">
-    <label for="matric" class="col-sm-3 col-form-label"><b>KAD MATRIK :</b></label>
-    <div class="col-sm-9">
-        <input type="text" class="form-control" id="matric" name="matric" value="<?php echo $no_matric; ?>" readonly>
-    </div>
-</div>
-
-<div class="form-group row">
-    <label for="no_ic" class="col-sm-3 col-form-label"><b>NO IC :</b></label>
-    <div class="col-sm-9">
-        <input type="text" class="form-control" id="no_ic" name="no_ic" value="<?php echo $no_ic; ?>" readonly>
-    </div>
-</div>
-
-<div class="form-group row">
-    <label for="email" class="col-sm-3 col-form-label"><b>E-MEL :</b></label>
-    <div class="col-sm-9">
-        <input type="text" class="form-control" id="email" name="email" value="<?php echo $email; ?>" readonly>
-    </div>
-</div>
-                    </div>
-                </div>
-
-            </div>
-        </section><!-- End Services Section -->
-
-    </main>
-
   <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top">
+  <header id="header" class="fixed-top shadow-sm bg-white">
     <div class="container d-flex align-items-center justify-content-between">
-
-      <h1 class="logo"><a href="index.php"> PIMS PBU <img src="assets\img\pimslogo.png" alt="" class="img-fluid"></a></h1>
-
+      <h1 class="logo"><a href="index.php">PIMS PBU</a></h1>
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto active" href="index.php">Utama</a></li>
-          <li><a class="nav-link scrollto o" href="picture.php">Gallery Gambar PIMS</a></li>
+          <li><a class="nav-link scrollto" href="index.php">Utama</a></li>
+          <li><a class="nav-link scrollto" href="picture.php">Gallery</a></li>
           <li><a class="nav-link scrollto" href="infaq.php">Sumbangan</a></li>
-          <li><a class="nav-link scrollto" href="#contact">Hubungi Kami</a></li>
-          <li><a class="getstarted scrollto" a href="logout.php" id="logout-btn">Log Keluar</a></li>
+          <li><a class="getstarted scrollto bg-danger" href="logout.php" id="logout-btn">Log Keluar</a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
-      </nav><!-- .navbar -->
-
+      </nav>
     </div>
-  </header><!-- End Header -->
+  </header>
 
+  <main id="main" style="margin-top: 100px;">
+    <section id="services" class="services">
+      <div class="container" data-aos="fade-up">
+        <div class="section-title">
+          <h2>MAKLUMAT PELAJAR</h2>
+          <p>Sila pastikan maklumat anda betul sebelum pengesahan.</p>
+        </div>
 
-  <main id="main">
-  </main><!-- End #main -->
+        <div class="row justify-content-center">
+          <div class="col-lg-8 card p-4 shadow-sm">
+            <div class="form-group row mb-3">
+              <label class="col-sm-3 col-form-label"><b>NAMA :</b></label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" value="<?php echo htmlspecialchars($fullname); ?>" readonly>
+              </div>
+            </div>
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer">
+            <div class="form-group row mb-3">
+              <label class="col-sm-3 col-form-label"><b>KAD MATRIK :</b></label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" value="<?php echo htmlspecialchars($no_matric); ?>" readonly>
+              </div>
+            </div>
 
-    <div class="container d-md-flex py-4">
+            <div class="form-group row mb-3">
+              <label class="col-sm-3 col-form-label"><b>NO IC :</b></label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" value="<?php echo htmlspecialchars($no_ic); ?>" readonly>
+              </div>
+            </div>
 
-      <div class="me-md-auto text-center text-md-start">
-        <div class="credits">
-          Designed by <a href="https://pbu.mypolycc.edu.my/">YESTIMES DIGITAL</a>
+            <div class="form-group row mb-3">
+              <label class="col-sm-3 col-form-label"><b>E-MEL :</b></label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" value="<?php echo htmlspecialchars($email); ?>" readonly>
+              </div>
+            </div>
+            
+            <div class="text-center mt-4">
+               <button class="btn btn-primary px-5 rounded-pill" onclick="alert('Pendaftaran Yassin Berjaya Disahkan!')">Sahkan Kehadiran</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="social-links text-center text-md-right pt-3 pt-md-0">
-        <a href="https://www.facebook.com/groups/pbu21/?ref=share&mibextid=NSMW" class="facebook"><i class="bx bxl-facebook"></i></a>
-        <a href="https://instagram.com/politeknikbalikpulau?igshid=MTI1ZDU5ODQ3Yw==" class="instagram"><i class="bx bxl-instagram"></i></a>
-        <a href="https://www.linkedin.com/school/pbu21/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+    </section>
+  </main>
+
+  <footer id="footer" class="mt-5">
+    <div class="container py-4 text-center">
+      <div class="credits">
+        Designed by <a href="https://pbu.mypolycc.edu.my/">YESTIMES DIGITAL</a>
       </div>
     </div>
-  </footer><!-- End Footer -->
+  </footer>
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-
-  <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
 
   <script>
-    // Add event listeners to the "Log Keluar" button
     document.getElementById("logout-btn").addEventListener("click", function(event) {
-      event.preventDefault();
-
-      if (confirm('Adakah anda pasti?')) {
-        // Perform any necessary logout operations here
-        window.location.href = 'index.php';
+      if (!confirm('Adakah anda pasti untuk log keluar?')) {
+        event.preventDefault();
       }
-    });
-
-    // Add event listener to the contact form submission
-    const form = document.getElementById('contactForm');
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const subject = document.getElementById('subject').value;
-      const message = document.getElementById('message').value;
-
-      // You can perform additional form validation here before sending the data
-
-      // Create a FormData object and append the form data
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('subject', subject);
-      formData.append('message', message);
-
-      // Send the form data to the server using fetch
-      fetch('contact.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => {
-          if (response.ok) {
-            form.reset();
-            alert('Your message has been sent successfully. Thank you!');
-          } else {
-            throw new Error('An error occurred while sending your message. Please try again.');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert(error.message);
-        });
     });
   </script>
 
 </body>
-
 </html>

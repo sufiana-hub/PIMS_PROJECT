@@ -1,9 +1,19 @@
 <?php
 // Database connection settings
-$host = "localhost";
-$username = "root";
-$password = "";
-$database = "pims_pbu"; // Update with your database name
+$host = "lesbot-db-server.mysql.database.azure.com";
+$username = "sufiana_admin";
+$password = "YOUR_DATABASE_PASSWORD"; // Put the password you created for the server here
+$db_name = "pims_db"; 
+
+// Azure requires SSL for the connection
+$conn = mysqli_init();
+mysqli_ssl_set($conn, NULL, NULL, NULL, NULL, NULL);
+mysqli_real_connect($conn, $host, $username, $password, $db_name, 3306, MYSQLI_CLIENT_SSL);
+
+if (mysqli_connect_errno()) {
+    die("Failed to connect to MySQL: " . mysqli_connect_error());
+}
+
 
 // Create a new database connection
 $conn = new mysqli($host, $username, $password, $database);

@@ -1,21 +1,12 @@
 <?php
-date_default_timezone_set("Asia/Kuala_Lumpur");
+require_once('db_connect.php');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "pims_pbu";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$nama = ""; 
+$nopend = ""; 
+$day = date("l"); // Moved outside the IF to fix undefined error
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nomboric = $_POST['SCAN'];
-
+    $nomboric = sanitizeInput($conn, $_POST['SCAN']);
     $sql = "SELECT * FROM signup WHERE noic='$nomboric'";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
@@ -23,27 +14,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $nama = $row["fullname"];
         $nopend = $row["nomatric"];
 
-        // Convert date and time to PHP DateTime object
-        $datetime = new DateTime(); // Use the current date and time
-        $day = $datetime->format("l"); // Get the day in the full textual representation
-
-        // Insert participant data into the database
         $sql_insert = "INSERT INTO program_participants (ic, name, kad_matric, date_time, day_of_week) VALUES ('$nomboric', '$nama', '$nopend', NOW(), '$day')";
-        if ($conn->query($sql_insert) === TRUE) {
-            echo "Participant data inserted successfully.";
-        } else {
-            echo "Error: " . $sql_insert . "<br>" . $conn->error;
-        }
-    } else {
-        echo "User not found.";
+        $conn->query($sql_insert);
     }
 }
-
-// Retrieve participant data from the database
-$sql = "SELECT * FROM program_participants";
-$result = $conn->query($sql);
+$result_attendance = $conn->query("SELECT * FROM program_participants ORDER BY id DESC");
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

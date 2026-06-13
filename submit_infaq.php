@@ -1,25 +1,10 @@
 <?php
-// Database connection parameters
-$servername = "localhost"; // Change this if your database server is different
-$username = "root"; // Change this to your database username
-$password = ""; // Change this to your database password
-$dbname = "pims_pbu"; // Change this to your database name
+require_once('db_connect.php');
 
-// Create a new database connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check the connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
-
-// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Get the form data
-  $name = isset($_POST["name"]) ? $_POST["name"] : "";
-  $description = isset($_POST["description"]) ? $_POST["description"] : "";
+  $name = isset($_POST["name"]) ? sanitizeInput($conn, $_POST["name"]) : "";
+  $description = isset($_POST["description"]) ? sanitizeInput($conn, $_POST["description"]) : "";
 
-  // Prepare the SQL statement to insert data into the database
   $sql = "INSERT INTO infaq (name, description) VALUES ('$name', '$description')";
 
   // Execute the SQL statement
