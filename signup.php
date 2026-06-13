@@ -1,31 +1,30 @@
 <?php
+// 1. Connection Details
 $host = "lesbot-db-server.mysql.database.azure.com";
 $db   = "pims_db";
 $user = "sufiana_admin";
-$pass = "YOUR_DATABASE_PASSWORD";
+$pass = ""; // IMPORTANT: Change this to your actual password!
 
-// Path to the certificate file you just downloaded
+// 2. Path to the SSL certificate
 $ssl_cert = __DIR__ . "/DigiCertGlobalRootG2.crt.pem";
 
 $options = [
-    PDO::MYSQL_ATTR_SSL_CA => $ssl_cert, // Required for Azure
+    PDO::MYSQL_ATTR_SSL_CA => $ssl_cert,
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ];
 
 try {
+    // This creates the $pdo connection
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass, $options);
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    die("Database Connection failed: " . $e->getMessage());
 }
-// ... rest of code
 
-// Create a new PDO instance
-$pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+// --- REMOVED THE DUPLICATE BROKEN PDO LINE FROM HERE ---
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if the form submission is for sign up
     if (isset($_POST['signup'])) {
-        // Retrieve form data
         $fullname = $_POST['fullname'];
         $no_matric = $_POST['no_matric'];
         $no_ic = $_POST['no_ic'];
@@ -33,17 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
 
-        // Check if password and confirm password match
         if ($password !== $confirm_password) {
             echo "<script>alert('Password and Confirm Password do not match. Please try again.');</script>";
         } else {
-            // Insert the form data into the signup table
-            $stmt = $pdo->prepare("INSERT INTO signup (fullname, nomatric, noic, email, password, confirm_password) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$fullname, $no_matric, $no_ic, $email, $password, $confirm_password]);
-
-            // Redirect to the login page
-            header("Location: login.php");
-            exit();
+            try {
+                $stmt = $pdo->prepare("INSERT INTO signup (fullname, nomatric, noic, email, password, confirm_password) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$fullname, $no_matric, $no_ic, $email, $password, $confirm_password]);
+                header("Location: login.php");
+                exit();
+            } catch (PDOException $e) {
+                echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+            }
         }
     }
 }
