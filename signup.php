@@ -3,7 +3,7 @@
 $host = "lesbot-db-server.mysql.database.azure.com";
 $db   = "pims_db";
 $user = "sufiana_admin";
-$pass = "Sufi123?!"; // IMPORTANT: Change this to your actual password!
+$pass = "No"; // IMPORTANT: Change this to your actual password!
 
 // 2. Path to the SSL certificate
 $ssl_cert = __DIR__ . "/DigiCertGlobalRootG2.crt.pem";
