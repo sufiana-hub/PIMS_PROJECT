@@ -1,7 +1,7 @@
 <?php
 $host = "lesbot-db-server.mysql.database.azure.com";
 $username = "sufiana_admin";
-$password = "YOUR_PASSWORD";
+$password = "Sufi123?!";
 $db_name = "pims_db";
 
 // Path to the certificate you just downloaded

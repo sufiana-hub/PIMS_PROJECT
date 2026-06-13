@@ -2,7 +2,7 @@
 // Database connection settings
 $host = "localhost";
 $username = "root";
-$password = "";
+$password = "Sufi123?!";
 $database = "pims_pbu"; // Update with your database name
 
 // Create a new database connection

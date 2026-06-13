@@ -4,7 +4,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $host = "lesbot-db-server.mysql.database.azure.com";
 $username = "sufiana_admin";
-$password = "YOUR_DATABASE_PASSWORD"; // Ensure this is your actual password
+$password = "Sufi123?!"; // Ensure this is your actual password
 $db_name = "pims_db"; 
 
 // 2. Initialize Secure Azure SSL Connection

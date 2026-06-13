@@ -2,7 +2,7 @@
 // Database connection settings
 $host = "lesbot-db-server.mysql.database.azure.com";
 $username = "sufiana_admin";
-$password = "YOUR_DATABASE_PASSWORD"; // Put the password you created for the server here
+$password = "Sufi123?!"; // Put the password you created for the server here
 $db_name = "pims_db"; 
 
 // Azure requires SSL for the connection
