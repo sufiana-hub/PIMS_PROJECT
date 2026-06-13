@@ -4,7 +4,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $host = "lesbot-db-server.mysql.database.azure.com";
 $username = "sufiana_admin";
-$password = "YOUR_DATABASE_PASSWORD"; // Replace with your actual password
+$password = "Sufi123?!"; // Replace with your actual password
 $db_name = "pims_db"; 
 
 // Initialize variables to prevent "Undefined Variable" notices
