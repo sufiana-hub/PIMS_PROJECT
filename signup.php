@@ -4,8 +4,11 @@ $db   = "pims_db";
 $user = "sufiana_admin";
 $pass = "YOUR_DATABASE_PASSWORD";
 
+// Path to the certificate file you just downloaded
+$ssl_cert = __DIR__ . "/DigiCertGlobalRootG2.crt.pem";
+
 $options = [
-    PDO::MYSQL_ATTR_SSL_CA => true, // Required for Azure
+    PDO::MYSQL_ATTR_SSL_CA => $ssl_cert, // Required for Azure
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ];
 
